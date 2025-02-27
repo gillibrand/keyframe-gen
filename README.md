@@ -4,12 +4,16 @@ A quick-and dirty web app to paste an image into a canvas and generate JavaScrip
 
 This is not very flexible, and is probably not helpful to most as-is, but might serve as a simple starting point for other quick tools that analyze an image.
 
+## Interface with a graph
+
 <figure>
 	<img src="./screenshot.png">
 	</figcaption>
 		Matching a curve over time.
 	<figcaption>
 </figure>
+
+## Elephant
 
 <figure>
 	<img src="./elephant.jpg">
