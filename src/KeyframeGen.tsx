@@ -28,7 +28,6 @@ export function KeyframeGen() {
       willReadFrequently: true,
     })!;
 
-    ctx.strokeStyle = ctx.fillStyle = "red";
     ctx.lineWidth = 3;
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -42,7 +41,7 @@ export function KeyframeGen() {
       return r < threshold && g < threshold && b < threshold && a === 255;
     }
 
-    for (let x = 0; x <= width; x += step) {
+    for (let x = 0; x < width + 1; x += step) {
       const xFloor = Math.min(width - 1, Math.floor(x));
       for (let y = 0; y < height; y++) {
         const index = (y * width + xFloor) * 4;
@@ -53,25 +52,50 @@ export function KeyframeGen() {
         if (isBlack(r, g, b, a) || y === height - 1) {
           newSamples.push({ x: xFloor, y: height - y });
 
-          // Vertical red line
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
-          ctx.stroke();
-
-          // Red intersection dot with white outline
-          ctx.beginPath();
-          ctx.fillStyle = "white";
-          ctx.arc(x, y, 12, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.fillStyle = "red";
-          ctx.arc(x, y, 10, 0, 2 * Math.PI);
-          ctx.fill();
-
           break;
         }
       }
+    }
+
+    // Draw a line graph through each point just approximate the final curve.
+    let prevPoint: Point | undefined;
+    ctx.strokeStyle = "red";
+    for (const { x, y } of newSamples) {
+      const dy = height - y;
+
+      if (prevPoint) {
+        ctx.beginPath();
+        ctx.moveTo(prevPoint.x, prevPoint.y);
+        ctx.lineTo(x, dy);
+        ctx.stroke();
+      }
+      prevPoint = { x, y: dy };
+    }
+
+    // Draw each intersection point. It's important to ensure there is one at all the peaks and
+    // valleys.
+    ctx.strokeStyle = "red";
+    for (const { x, y } of newSamples) {
+      // XXX: Draw on the canvas we're reading to keep it simple. This means we need to redraw
+      // the image every time we sample it. It'd better to draw on a second overlaid canvas if
+      // we need this faster.
+
+      const dy = height - y;
+      // Vertical red line
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+
+      // Red intersection dot with white outline
+      ctx.beginPath();
+      ctx.fillStyle = "white";
+      ctx.arc(x, dy, 12, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.fillStyle = "red";
+      ctx.arc(x, dy, 10, 0, 2 * Math.PI);
+      ctx.fill();
     }
 
     setSamples(newSamples);
