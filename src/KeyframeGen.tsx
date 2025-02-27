@@ -50,7 +50,7 @@ export function KeyframeGen() {
         const g = data[index + 1];
         const b = data[index + 2];
         const a = data[index + 3];
-        if (isBlack(r, g, b, a)) {
+        if (isBlack(r, g, b, a) || y === height - 1) {
           newSamples.push({ x: xFloor, y: height - y });
 
           // Vertical red line

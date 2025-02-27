@@ -12,7 +12,7 @@ This is not very flexible, and is probably not helpful to most as-is, but might 
 </figure>
 
 <figure>
-	<img src="./head.png">
+	<img src="./elephant.jpg">
 	<figcaption>
 		Less useful for photos, but adjust the threshold to try.
 	</figcaption>
