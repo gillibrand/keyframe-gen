@@ -16,7 +16,7 @@ This is not very flexible, and is probably not helpful to most as-is, but might 
 ## Works with clear photos
 
 <figure>
-	<img src="./elephant.jpg">
+	<img src="./elephant2.jpg">
 	<figcaption>
 		Less useful for photos, but adjust the threshold to try.
 	</figcaption>
