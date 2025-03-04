@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import "./KeyframeGen.css";
 
 type Point = {
@@ -9,6 +9,10 @@ type Point = {
 type Frame = {
   scale: string;
 };
+
+function unreachable(value: never): never {
+  throw new Error(`unknown value: ${value}`);
+}
 
 export function KeyframeGen() {
   const [image, setImage] = useState<HTMLImageElement | null>();
@@ -84,7 +88,7 @@ export function KeyframeGen() {
       // Vertical red line
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
+      ctx.lineTo(x, dy);
       ctx.stroke();
 
       // Red intersection dot with white outline
@@ -152,9 +156,9 @@ export function KeyframeGen() {
     });
   }, []);
 
-  function samplesAsFrames() {
+  function samplesAsJsScaleYFrames() {
     const frames: Frame[] = [];
-    if (!image) return frames;
+    if (!image) return "";
 
     for (const sample of samples) {
       const frame: Frame = {
@@ -163,16 +167,41 @@ export function KeyframeGen() {
       frames.push(frame);
     }
 
-    return frames;
+    return JSON.stringify(frames, null, 2);
   }
 
-  function framesAsJson() {
-    return JSON.stringify(samplesAsFrames(), null, 2);
+  function samplesAsCssTranslateY() {
+    if (!image) return "";
+
+    let percent = 0;
+    const step = Math.floor(100 / (samples.length - 1));
+
+    const parts: string[] = [];
+
+    for (const sample of samples) {
+      parts.push(`${percent}% { translate: 0 ${Math.round((sample.y / image?.height) * 100) / 100} }`);
+      percent += step;
+    }
+
+    return parts.join("\n");
+  }
+
+  function framesAsText() {
+    switch (output) {
+      case "cssScaleY":
+        return samplesAsCssTranslateY();
+
+      case "jsScaleY":
+        return samplesAsJsScaleYFrames();
+
+      default:
+        return unreachable(output);
+    }
   }
 
   async function copyFrames() {
     try {
-      await navigator.clipboard.writeText(framesAsJson());
+      await navigator.clipboard.writeText(framesAsText());
       setMessage("Copied");
       setTimeout(() => {
         setMessage("");
@@ -181,6 +210,14 @@ export function KeyframeGen() {
       setMessage((e as object).toString());
     }
   }
+
+  type Outputs = "jsScaleY" | "cssScaleY";
+
+  const [output, setOutput] = useState<Outputs>("jsScaleY");
+
+  const samplesId = useId();
+  const thresholdId = useId();
+  const typeId = useId();
 
   return (
     <div className="container">
@@ -193,8 +230,9 @@ export function KeyframeGen() {
       {!image && <div className="placeholder">Paste an image anywhere</div>}
 
       <div className="control-row">
-        <label>Samples:</label>
+        <label htmlFor={samplesId}>Samples:</label>
         <input
+          id={samplesId}
           type="range"
           value={sampleCount}
           min={2}
@@ -203,8 +241,9 @@ export function KeyframeGen() {
         />
         <code>{sampleCount}</code>
 
-        <label>Threshold:</label>
+        <label htmlFor={thresholdId}>Threshold:</label>
         <input
+          id={thresholdId}
           type="range"
           value={threshold}
           min={0}
@@ -213,13 +252,19 @@ export function KeyframeGen() {
         />
         <code>{threshold}</code>
 
+        <label htmlFor={typeId}>Output:</label>
+        <select id="typeId" value={output} onChange={(e) => setOutput(e.target.value as Outputs)}>
+          <option value="jsScaleY">JS: Scale Y</option>
+          <option value="cssScaleY">CSS: Transform Y</option>
+        </select>
+
         <button disabled={!samples.length} onClick={copyFrames}>
           Copy Keyframes
         </button>
         {message && <div>{message}</div>}
       </div>
 
-      {samples.length !== 0 && <pre className="frame-list">{framesAsJson()}</pre>}
+      {samples.length !== 0 && <pre className="frame-list">{framesAsText()}</pre>}
     </div>
   );
 }

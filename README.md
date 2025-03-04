@@ -4,6 +4,8 @@ A quick-and dirty web app to paste an image into a canvas and generate JavaScrip
 
 This is not very flexible, and is probably not helpful to most as-is, but might serve as a simple starting point for other quick tools that analyze an image.
 
+Start with `npm run dev` after an `npm install`.
+
 ## Sampling a graph
 
 <figure>
