@@ -179,7 +179,7 @@ export function KeyframeGen() {
     const parts: string[] = [];
 
     for (const sample of samples) {
-      parts.push(`${percent}% { translate: 0 ${Math.round((sample.y / image?.height) * 100) / 100} }`);
+      parts.push(`${percent}% { translate: 0 ${Math.round((sample.y / image?.height) * 100)}% }`);
       percent += step;
     }
 

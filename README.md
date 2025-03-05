@@ -15,10 +15,10 @@ Start with `npm run dev` after an `npm install`.
 	<figcaption>
 </figure>
 
-## Works with clear photos
+## Works with high-contrast photos
 
 <figure>
-	<img src="./elephant2.jpg">
+	<img src="./elephant3.jpg">
 	<figcaption>
 		Less useful for photos, but adjust the threshold to try.
 	</figcaption>
